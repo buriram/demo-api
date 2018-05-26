@@ -5,25 +5,17 @@ module.exports = router
 //     http://localhost:7000/api/student?class=1
 router.get('/list', async (req, res) => {
   try {
-  let db = req.db
-  let rows
-  if (req.query.class) {
-    rows = await db('student').where('class', '=', req.query.class).orderBy('first_name')
-  } else {
-    rows = await db('student').orderBy('first_name')
+    let rows = await req.db.raw(`
+SELECT * 
+FROM student
+WHERE room=?`, [req.query.room])
+    res.send({
+      ok: true,
+      student: Object.values(rows[0]),
+    })
+  } catch (e) {
+    res.send({ ok: false, error: e.message })
   }
-  // let rows = await db('student').orderBy('fname').where(function() {
-  //   if (req.query.class) {
-  //     this.where('class', '=', req.query.class)
-  //   }
-  // })
-  res.send({
-    ok: true,
-    student: rows,
-  })
-} catch (e) {
-  res.send({ ok: false, error: e.message })
-}
 })
 // /api/student/id/555
 router.get('/id/:id', async (req, res) => {
@@ -35,40 +27,6 @@ router.get('/id/:id', async (req, res) => {
     student: rows[0] || {},
   })
 })
-// save Register
-router.post('/regis', async (req, res) => {
-  let db = req.db
-  await db('tb_teacher').insert({
-    t_email: req.body.user,
-    t_pass: req.body.pass,
-    t_firstname: req.body.first_name,
-    t_lastname: req.body.last_name,
-  })
-  res.send({ok: true})
-  })
-
-  router.get('/booking', async (req, res) => {
-    try {
-    let db = req.db
-    let rows
-    if (req.query.b_date) {
-      rows = await db('tb_booking').where('b_date', '=', req.query.b_date).orderBy('b_timein')
-    } else {
-      rows = await db('tb_booking').orderBy('b_date')
-    }
-    // let rows = await db('student').orderBy('fname').where(function() {
-    //   if (req.query.class) {
-    //     this.where('class', '=', req.query.class)
-    //   }
-    // })
-    res.send({
-      ok: true,
-      bk: rows,
-    })
-  } catch (e) {
-    res.send({ ok: false, error: e.message })
-  }
-  })
 //   /api/student/save
 router.post('/save', async (req, res) => {
   let db = req.db

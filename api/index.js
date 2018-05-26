@@ -3,5 +3,5 @@ const router = express.Router()
 
 module.exports = router
 
-router.use('/auth', require('./auth'))
+router.use('/login', require('./login'))
 router.use('/student', require('./student'))
